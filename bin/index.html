@@ -8,11 +8,23 @@
        margin: 0;
        padding: 0;
    }
+
+   .throbber>span{
+       animation: in 1s infinite;
+       animation-timing-function: linear;
+   }
+   @keyframes in {
+       from {
+           transform: rotate(0deg);
+       }
+       to {
+           transform: rotate(360deg);
+       }
+   }
   </style>
   <body>
     <div id="root">
     </div>
-    <script src="./bundle.js" async="async">
-    </script>
+    <script src="./bundle.js" async="async"></script>
   </body>
 </html>

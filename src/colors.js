@@ -29,19 +29,25 @@ export const init = () => model;
 // All available actions
 export const Action = Type({
   Add: [String, Number],
-  Set: [String, Number]
+  Set: [String, numberPicker.Action]
 });
 
-export const update = function (action, model) {
+export const update = function (model, action) {
+  const get = k => getIn(model, k);
   const newModel = Action.case({
-    Add: (k, n) => assoc(model, k, Math.abs(getIn(model, k) + n) % 0xff),
-    Set: (k, n) => assoc(model, k, n <= 0 ? 0xfe : n)
+    Add: (k, n) =>
+      assoc(model, k, Math.abs(get(k) + n) % 0xff),
+    Set: (k, act) => {
+      const n = numberPicker.update(get(k), act);
+      return assoc(model, k, n <= 0 ? 0xfe : n);
+    }
   }, action);
 
   return newModel;
 };
 
-const rgb = (r, g, b) => `rgb(${Number(r||0)},${Number(g||0)},${Number(b||0)})`;
+const rgb = (r, g, b) =>
+        `rgb(${Number(r||0)},${Number(g||0)},${Number(b||0)})`;
 
 export function view(model, event) {
   // this should be an own component...
@@ -61,7 +67,7 @@ export function view(model, event) {
     }, [
       numberPicker.view(
         value,
-        act => event(Action.Set(key, numberPicker.update(value, act))))
+        a => event(Action.Set(key, a)))
     ]);
   };
 
