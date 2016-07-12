@@ -10,6 +10,14 @@
   },
   "author": "bjorn.roberg@gmail.com",
   "license": "ISC",
+  "dependencies": {
+    "flyd": "^0.2.2",
+    "mori": "^0.3.2",
+    "mori-fluent": "https://github.com/roobie/mori-fluent/archive/0.0.3.tar.gz",
+    "then-request": "^2.2.0",
+    "union-type": "^0.3.1",
+    "snabbdom": "^0.5.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.10.1",
     "babel-loader": "^6.2.4",
@@ -19,14 +27,13 @@
     "browserify": "^13.0.1",
     "css-loader": "^0.23.1",
     "express": "^4.14.0",
-    "flyd": "^0.2.2",
     "http-server": "^0.9.0",
-    "mori": "^0.3.2",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "lessify": "^1.0.1",
     "parallelshell": "^2.0.0",
-    "snabbdom": "^0.5.0",
+    "ramda": "^0.21.0",
     "style-loader": "^0.13.1",
-    "then-request": "^2.2.0",
-    "union-type": "^0.3.1",
     "watchify": "^3.7.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"

@@ -47,9 +47,9 @@ export function start(root, model, component) {
 
   // the actual asynchronous run loop, which simply is a mapping over the
   // state stream.
-  flyd.map(v => {
-    history = mori.conj(history, v);
-    render(v);
+  flyd.map(state => {
+    history = mori.conj(history, state);
+    render(state);
     return vnode;
   }, state$);
 
