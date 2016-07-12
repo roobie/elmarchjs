@@ -14,6 +14,7 @@ const {
   getIn,
   get,
   assoc,
+  updateIn,
   nth,
   toClj,
   toJs
@@ -25,40 +26,60 @@ const { apiUrl } = require('./config');
 
 const parse = json => JSON.parse(json);
 
+const assocMany = (coll, pairs) => {
+  return pairs.reduce((acc, next) => {
+    return assoc(acc, ...next);
+  }, coll);
+};
+
 export const model = hashMap(
-  'loading', true,
+  'fetch', false,
+  'loading', false,
   'data', [],
   'page', 1,
   'pageSize', 20
 );
 
-//export const init = () => update(model, Action.Get());
 export const init = () => model;
+export const initAndFetch = () => assocMany(model, [
+  [ 'fetch', true ],
+]);
 
 export const Action = Type({
+  InitGet: [],
   Get: [],
   NextPage: [],
-  PrevPage: [],
+  PrevPage: []
 });
 
-export const update = (model, action) => {
+export const update = (model, action, event) => {
   return Action.case({
+    InitGet: () => {
+      return assocMany(model, [
+        [ 'fetch', false ],
+        [ 'loading', true ],
+      ]);
+    },
     Get: () => request('GET', `${apiUrl}/data`).getBody()
       .then(d => {
         const res = parse(d);
         const words = res.split('\n');
-        let newModel = assoc(assoc(model, 'loading', false), 'data', words);
-        return newModel;
+        return assocMany(model, [
+          ['loading', false],
+          ['data', words]
+        ]);
       }),
-    NextPage: () => assoc(model, 'page', get(model, 'page') + 1),
-    PrevPage: () => assoc(model, 'page', get(model, 'page') - 1),
+    NextPage: () => updateIn(model, [ 'page' ], mori.inc),
+    PrevPage: () => updateIn(model, [ 'page' ], mori.dec)
   }, action);
 };
 
 export const view = (model, event) => {
-  if (get(model, 'loading')) {
+  if (get(model, 'fetch')) {
+    event(Action.InitGet());
     event(Action.Get());
   }
+
   const {
     loading,
     data,
@@ -85,7 +106,7 @@ export const view = (model, event) => {
           }
         })
       ])
-    : h('div', {style: {background: '#aaa'}}, [
+    : h('div', {style: {background: '#eee'}}, [
       h('button', {
         props: { type: 'button', disabled: page === 1 },
         on: {

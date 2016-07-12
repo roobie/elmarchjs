@@ -1,6 +1,7 @@
 'use strict';
 
-const { apiPort } = require('./config');
+const config = require('./config');
+const apiPort = config.apiPort;
 const fs = require('fs');
 const path = require('path');
 
@@ -36,7 +37,7 @@ router.get('/data', (req, res) => {
     //res.json(data);
     setTimeout(() => {
       res.json(data);
-    }, 20000);
+    }, 2000);
   });
 });
 

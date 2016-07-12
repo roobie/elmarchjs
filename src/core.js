@@ -11,7 +11,7 @@ const patch = snabbdom.init([
 ]);
 
 /// Runs an Elm architecture based application
-export function start(root, model, {view, update}) {
+export function start(root, model, component) {
   // this is the stream which acts as the run loop, which enables
   // updates to be triggered arbitrarily
   const state$ = stream(model);
@@ -21,28 +21,37 @@ export function start(root, model, {view, update}) {
   // using the `union-type` library.
   const handleEvent = function (action) {
     const currentState = state$();
-    state$(update(currentState, action));
+    state$(component.update(currentState, action, handleEvent));
   };
 
-  // the initial vnode, which is created by patching the root node
-  // with the result of calling the view function with the initial state and
+  // the initial vnode, which is not a virtual node, at first, but will be
+  // after the first pass, where this binding will be rebinded to a virtual node.
+  // I.e. the result of calling the view function with the initial state and
   // the event handler.
-  let vnode = null;
+  let vnode = root;
 
   // maps over the state stream, and patches the vdom
   // with the result of calling the view function with
   // the current state and the event handler.
   let history = mori.vector();
+
+  const render = (state) => {
+    vnode = patch(vnode, component.view(state, handleEvent));
+  };
+
+  // the actual asynchronous run loop, which simply is a mapping over the
+  // state stream.
   flyd.map(v => {
     history = mori.conj(history, v);
-    if (vnode === null) {
-      vnode = patch(root, view(v, handleEvent));
-    } else {
-      vnode = patch(vnode, view(v, handleEvent));
-    }
-
+    render(v);
     return vnode;
   }, state$);
 
-  return state$;
+  // return the state stream, so that the consumer of this API may
+  // expose the state stream to others, in order for them to interact
+  // with the active component.
+  return {
+    state$,
+    render
+  };
 };
