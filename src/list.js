@@ -106,14 +106,14 @@ export const view = (model, event) => {
           }
         })
       ])
-    : h('div', {style: {background: '#ddd'}}, [
+    : h('div', {style: {color: '#eee', background: '#666'}}, [
       h('button', {
         props: { type: 'button', disabled: page === 1 },
         on: {
           click: e => event(Action.PrevPage())
         }
       }, 'Prev page'),
-      page,
+      h('span', {style: {fontWeight: 'bold', margin: '1rem 2rem'}}, page),
       h('button', {
         props: { type: 'button', disabled: page * pageSize >= data.length },
         on: {
