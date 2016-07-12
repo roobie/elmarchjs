@@ -34,9 +34,15 @@ export const Action = Type({
   TreeAction: [R.T]
 });
 
+const subActionHandler = (component, model, key) =>
+        (action) => model.assoc(key, component.update(model.get(key), action));
+
 export const update = (model, action) => {
   return Action.case({
-    TreeAction: (a) => model.assoc(':tree', TreeNodeComponent.update(model.get(':tree'), a))
+    // TreeAction: (a) => model.assoc(
+    //   ':tree',
+    //   TreeNodeComponent.update(model.get(':tree'), a))
+    TreeAction: subActionHandler(TreeNodeComponent, model, ':tree')
   }, action);
 };
 

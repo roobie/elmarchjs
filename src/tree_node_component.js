@@ -37,11 +37,9 @@ export const update = (model, action) => {
     Toggle: () => model.updateIn([':expanded'], R.not),
     AddChild: function(basePath, currentModel, childModel) {
       const path = basePath.into(vector(':nodes')).toJs();
-      console.log(path);
       const newModel = model.updateIn(
         path,
         nodes => nodes.conj(childModel));
-      console.log(mori.toJs(newModel));
       return newModel;
     }
   }, action);
@@ -69,7 +67,7 @@ export const view = (model, event) => {
           event(Action.case({
             AddChild: (path, m, n) => Action.AddChild(
               path.into(vector(':nodes', i)), m, n),
-            _: a => a
+            _: R.identity
           }, subTreeAction));
         }
       )))
