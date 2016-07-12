@@ -11,6 +11,12 @@ const patch = snabbdom.init([
 ]);
 
 /// Runs an Elm architecture based application
+// in order to simplify hot code replacement, the
+// component parameter here is a reference to an object
+// that has the two following properties: `update` and `view`
+// this allows the consumer of this function to replace
+// these function at will, and then call the `render` function
+// which is a property on the object that is returned by `start`
 export function start(root, model, component) {
   // this is the stream which acts as the run loop, which enables
   // updates to be triggered arbitrarily

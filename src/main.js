@@ -2,8 +2,10 @@
 
 const mori = require('mori');
 const { start } = require('./core');
-const colorsComponent = require('./colors');
-const list = require('./list');
+//const colorsComponent = require('./colors');
+//const list = require('./list');
+
+const rootComponent = require('./root');
 
 function init() {
   // this is the element in which our component is rendered
@@ -15,17 +17,16 @@ function init() {
   const {
     state$,
     render
-  } = start(root, list.initAndFetch(), list);
-
+  } = start(root, rootComponent.init(), rootComponent);
 
 
   // If hot module replacement is enabled
   if (module.hot) {
     // We accept updates to the top component
-    module.hot.accept('./list.js', (comp) => {
+    module.hot.accept('./root', (comp) => {
       // Mutate the variable holding our component
-      const component = require('./list.js');
-      Object.assign(list, component);
+      const component = require('./root');
+      Object.assign(rootComponent, component);
       // Render view in the case that any view functions has changed
       render(state$());
     });

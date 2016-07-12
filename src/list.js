@@ -106,7 +106,7 @@ export const view = (model, event) => {
           }
         })
       ])
-    : h('div', {style: {background: '#eee'}}, [
+    : h('div', {style: {background: '#ddd'}}, [
       h('button', {
         props: { type: 'button', disabled: page === 1 },
         on: {
