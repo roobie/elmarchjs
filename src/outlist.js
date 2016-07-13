@@ -27,7 +27,7 @@ export const model = hashMap(
   ':tree', TreeNodeComponent.model
 );
 
-export const init = (props) => model.assocMany(props || []);
+export const init = (props) => model.assoc(...props || []);
 
 export const Action = Type({
 

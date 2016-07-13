@@ -25,7 +25,7 @@ export const model = hashMap(
   ':nodes', vector()
 );
 
-export const init = (props) => model.assocMany(props || []);
+export const init = (...props) => model.assoc(...props || []);
 
 export const Action = Type({
   Toggle: [],
@@ -45,31 +45,35 @@ export const update = (model, action) => {
   }, action);
 };
 
-export const view = (model, event) => {
+export const view = (model, event, path=vector()) => {
   return h('div.list', [
     h('div', [
       h('span', model.get(':name')),
-      h('button', { props: { type: 'button' }
-                    , on: {
-                      click: e => {
-                        const childModel = init();
-                        return event(Action.AddChild(
-                          vector(),
-                          model,
-                          childModel));
-                      }
-                    }}, 'Add child')
-    ]),
-    h('div', model.get(':nodes').toJs().map(
-      (node, i) => view(
-        model.getIn([':nodes', i]),
-        subTreeAction => {
-          event(Action.case({
-            AddChild: (path, m, n) => Action.AddChild(
-              path.into(vector(':nodes', i)), m, n),
-            _: R.identity
-          }, subTreeAction));
+
+      h('button', {
+        props: {
+          type: 'button'
+        },
+        on: {
+          click: e => {
+            const childModel = init();
+            return event(Action.AddChild(
+              path,
+              model,
+              childModel));
+          }
         }
-      )))
+      }, 'Add child')
+
+    ]),
+
+    h('div',
+      model.get(':nodes').mapKV(
+        (i, node) => {
+          const subTreePath = path.into(vector(':nodes', i));
+          return view(node, event, subTreePath);
+        },
+        vector())
+      .intoArray())
   ]);
 };

@@ -19,7 +19,9 @@ const patch = snabbdom.init([
 // which is a property on the object that is returned by `start`
 export function start(root, model, component) {
   // this is the stream which acts as the run loop, which enables
-  // updates to be triggered arbitrarily
+  // updates to be triggered arbitrarily.
+  // flyd handles Promises transparently, so model could as well
+  // be a Promise, which resolves to a model value.
   const state$ = stream(model);
 
   // this is the event handler which allows the view to trigger
@@ -27,7 +29,7 @@ export function start(root, model, component) {
   // using the `union-type` library.
   const handleEvent = function (action) {
     const currentState = state$();
-    state$(component.update(currentState, action, handleEvent));
+    state$(component.update(currentState, action));
   };
 
   // the initial vnode, which is not a virtual node, at first, but will be
@@ -56,6 +58,52 @@ export function start(root, model, component) {
   // return the state stream, so that the consumer of this API may
   // expose the state stream to others, in order for them to interact
   // with the active component.
+  return {
+    state$,
+    render
+  };
+};
+
+
+const fulfillsEffectProtocol = q => q && q.constructor == Array && q.length === 2;
+const isEffectOf = (A, a) => A.prototype.isPrototypeOf(a);
+
+// runs an elm arch based application, and also handles
+// side/effects. It does so by allowing the update function to
+// return an array which looks like this:
+// [ effect, model ]
+// where the effect is an instance of an action from the component.
+// which will asynchronously trigger a recursive call to the
+// event handler.
+export function application(root, model, component) {
+  const state$ = stream(model);
+
+  const handleEvent = function rec(action) {
+    const currentState = state$();
+    const result = component.update(currentState, action);
+    if (fulfillsEffectProtocol(result) && isEffectOf(component.Action, result[0])) {
+      const [effect, model] = result;
+      requestAnimationFrame(() => rec(effect));
+      state$(model);
+    } else {
+      state$(result);
+    }
+  };
+
+  let vnode = root;
+
+  let history = mori.vector();
+
+  const render = (state) => {
+    vnode = patch(vnode, component.view(state, handleEvent));
+  };
+
+  flyd.map(state => {
+    history = mori.conj(history, state);
+    render(state);
+    return vnode;
+  }, state$);
+
   return {
     state$,
     render

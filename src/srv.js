@@ -36,7 +36,8 @@ router.get('/data', (req, res) => {
     //res.json(data.slice(0,10000));
     //res.json(data);
     setTimeout(() => {
-      res.json(data);
+      res.json(data.slice(0,10000));
+      //res.json(data);
     }, 2000);
   });
 });

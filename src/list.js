@@ -26,24 +26,15 @@ const { apiUrl } = require('./config');
 
 const parse = json => JSON.parse(json);
 
-const assocMany = (coll, pairs) => {
-  return pairs.reduce((acc, next) => {
-    return assoc(acc, ...next);
-  }, coll);
-};
-
 export const model = hashMap(
-  'fetch', false,
+  'fetch', true,
   'loading', false,
   'data', [],
   'page', 1,
   'pageSize', 20
 );
 
-export const init = () => model;
-export const initAndFetch = () => assocMany(model, [
-  [ 'fetch', true ],
-]);
+export const init = (...props) => model.assoc(...props || []);
 
 export const Action = Type({
   InitGet: [],
@@ -52,22 +43,25 @@ export const Action = Type({
   PrevPage: []
 });
 
-export const update = (model, action, event) => {
+export const update = (model, action) => {
   return Action.case({
     InitGet: () => {
-      return assocMany(model, [
-        [ 'fetch', false ],
-        [ 'loading', true ],
-      ]);
+      return [
+        Action.Get(),
+        model.assoc(
+          'fetch', false,
+          'loading', true
+        )
+      ];
     },
     Get: () => request('GET', `${apiUrl}/data`).getBody()
       .then(d => {
         const res = parse(d);
         const words = res.split('\n');
-        return assocMany(model, [
-          ['loading', false],
-          ['data', words]
-        ]);
+        return model.assoc(
+          'loading', false,
+          'data', words
+        );
       }),
     NextPage: () => updateIn(model, [ 'page' ], mori.inc),
     PrevPage: () => updateIn(model, [ 'page' ], mori.dec)
@@ -77,7 +71,6 @@ export const update = (model, action, event) => {
 export const view = (model, event) => {
   if (get(model, 'fetch')) {
     event(Action.InitGet());
-    event(Action.Get());
   }
 
   const {

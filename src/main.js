@@ -1,7 +1,7 @@
 'use strict';
 
 const mori = require('mori-fluent')(require('mori'), require('mori-fluent/extra'));
-const { start } = require('./core');
+const { start, application } = require('./core');
 
 // the wrapper root component, which is used to facilitate
 // keeping this module somewhat agnostic to changes in the
@@ -18,7 +18,8 @@ function init() {
   const {
     state$,
     render
-  } = start(root, RootComponent.init(), RootComponent);
+  //} = start(root, RootComponent.init(), RootComponent);
+  } = application(root, RootComponent.init(), RootComponent);
 
 
   // If hot module replacement is enabled
