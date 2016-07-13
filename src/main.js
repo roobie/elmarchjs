@@ -19,7 +19,7 @@ function init() {
     state$,
     render
   //} = start(root, RootComponent.init(), RootComponent);
-  } = application(root, RootComponent.init(), RootComponent);
+  } = application(root, RootComponent.init, RootComponent);
 
 
   // If hot module replacement is enabled

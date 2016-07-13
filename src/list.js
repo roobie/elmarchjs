@@ -3,7 +3,7 @@ const h = require('snabbdom/h');
 const Type = require('union-type');
 const flyd = require('flyd');
 const { stream } = flyd;
-const mori = require('mori');
+const mori = require('mori-fluent')(require('mori'));
 const {
   vector,
   hashMap,
@@ -27,14 +27,17 @@ const { apiUrl } = require('./config');
 const parse = json => JSON.parse(json);
 
 export const model = hashMap(
-  'fetch', true,
   'loading', false,
   'data', [],
   'page', 1,
   'pageSize', 20
 );
 
-export const init = (...props) => model.assoc(...props || []);
+// init func with side effect.
+export const init = (...props) => [
+  Action.InitGet(),
+  model.assoc(...props || [])
+];
 
 export const Action = Type({
   InitGet: [],
@@ -49,7 +52,6 @@ export const update = (model, action) => {
       return [
         Action.Get(),
         model.assoc(
-          'fetch', false,
           'loading', true
         )
       ];
@@ -69,16 +71,12 @@ export const update = (model, action) => {
 };
 
 export const view = (model, event) => {
-  if (get(model, 'fetch')) {
-    event(Action.InitGet());
-  }
-
   const {
     loading,
     data,
     page,
     pageSize
-  } = toJs(model || init());
+  } = model.toJs();
 
   const pg = data.slice((page - 1) * pageSize, page * pageSize);
 

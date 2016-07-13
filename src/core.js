@@ -75,19 +75,25 @@ const isEffectOf = (A, a) => A.prototype.isPrototypeOf(a);
 // where the effect is an instance of an action from the component.
 // which will asynchronously trigger a recursive call to the
 // event handler.
-export function application(root, model, component) {
-  const state$ = stream(model);
+export function application(root, init, component) {
+  const state$ = stream();
 
-  const handleEvent = function rec(action) {
-    const currentState = state$();
-    const result = component.update(currentState, action);
+  const handleResult = function (result) {
     if (fulfillsEffectProtocol(result) && isEffectOf(component.Action, result[0])) {
       const [effect, model] = result;
-      requestAnimationFrame(() => rec(effect));
+      requestAnimationFrame(() => handleEvent(effect));
       state$(model);
     } else {
+      // result is the model
       state$(result);
     }
+  };
+
+
+  const handleEvent = function (action) {
+    const currentState = state$();
+    const result = component.update(currentState, action);
+    handleResult(result);
   };
 
   let vnode = root;
@@ -103,6 +109,8 @@ export function application(root, model, component) {
     render(state);
     return vnode;
   }, state$);
+
+  handleResult(init());
 
   return {
     state$,
