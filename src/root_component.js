@@ -1,5 +1,5 @@
-const app = require('./list2');
-//const app = require('./outlist');
+//const app = require('./list2');
+const app = require('./outlist');
 
 //export const init = app.initAndFetch;
 export const init = app.init;

@@ -1,11 +1,16 @@
 @import 'normalize.less';
 
-
-
 .list {
     margin-left: 1rem;
+    border-left: 1px solid silver;
+    border-top: 1px solid silver;
 }
 
+.mono {
+    font-family: monospace;
+}
+
+// debugging
 .col {
     float: left;
 }
@@ -13,4 +18,9 @@
 .col.left,
 .col.right {
     width: 50%;
+}
+
+pre {
+    margin: 0;
+    font-size: 0.7rem;
 }

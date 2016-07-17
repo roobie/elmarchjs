@@ -102,7 +102,10 @@ export const view = (model, event, subEvent) => {
 
   return h('div', [
 
-    subComponent.view(model.getIn([ 'subData' ]), subEvent([ 'subData' ], subComponent)),
+    subComponent.view(
+      model.getIn([ 'subData' ]),
+      subEvent('subData')(subComponent),
+      subEvent.bind(null, 'subData')),
 
     loading ?
       h('div.throbber', {

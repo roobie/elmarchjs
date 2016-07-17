@@ -99,29 +99,8 @@ export function application(root, init, component) {
 
   let history = mori.vector();
 
-  const handleSubResult = function (path, rootModel, subComponent, result) {
-    if (fulfillsEffectProtocol(result) && isEffectOf(subComponent.Action, result[0])) {
-      const [effect, model] = result;
-      requestAnimationFrame(() => handleSubEvent(path, subComponent, effect));
-      state$(rootModel.assocIn(path, model));
-    } else {
-      // result is the model
-      state$(rootModel.assocIn(path, result));
-    }
-  };
-
-  const handleSubEvent = function (path, subComponent, action) {
-    const currentState = state$();
-    const result = subComponent.update(currentState.getIn(path), action);
-    handleSubResult(path, currentState, subComponent, result);
-  };
-  const subComponents = Object.create(null);
-  const subComponentEventHandler = function (path, subComponent) {
-    return handleSubEvent.bind(null, path, subComponent);
-  };
-
   const render = (state) => {
-    vnode = patch(vnode, component.view(state, handleEvent, subComponentEventHandler));
+    vnode = patch(vnode, component.view(state, handleEvent));
   };
 
   flyd.map(state => {
@@ -134,17 +113,14 @@ export function application(root, init, component) {
 
   const historyNavigation$ = stream();
   flyd.map(nav => {
-    // ...
-    var lastState = history.peek();
+    const lastState = history.peek();
     history = history.pop();
     render(lastState);
   }, historyNavigation$);
-  window.H = historyNavigation$;
 
   return {
     state$,
     render,
-
     historyNavigation$
   };
 };
