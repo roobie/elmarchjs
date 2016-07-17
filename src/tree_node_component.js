@@ -21,8 +21,10 @@ const {
 } = mori;
 const R = require('ramda');
 
-const provided = (b, res) => b ? res() : h('span');
-const ifElse = (b, res1, res2) => b ? res1() : res2();
+const {
+  provided,
+  is
+} = require('./viewutils');
 
 export const model = hashMap(
   ':name', 'LIST',
@@ -98,30 +100,36 @@ export const view = (model, event, path=vector()) => {
         }
       }, 'add list'),
 
-      provided(!model.get(':nodes').isEmpty(),
-               () => h('button', {
-                 class: {
-                   mono: true
-                 },
-                 props: {
-                   type: 'button'
-                 },
-                 on: {
-                   click: e => event(Action.ToggleExpanded(path))
-                 }
-               }, ifElse(model.get(':expanded'),
-                         () => '[-]',
-                         () => '[+]')))
+      h('button', {
+        props: {
+          type: 'button',
+          innerHTML: '&times;'
+        },
+        on: {
+          click: e => event(Action.RemoveThis(path))
+        }
+      }),
 
+      h('button', {
+        class: {
+          hide: model.get(':nodes').isEmpty(),
+          mono: true
+        },
+        props: {
+          type: 'button'
+        },
+        on: {
+          click: e => event(Action.ToggleExpanded(path))
+        }
+      }, model.get(':expanded')
+        ? '[-]'
+        : '[+]')
     ]),
 
-    h('div',
-      ifElse(model.get(':expanded'),
-             () => model.get(':nodes').mapKV(
-               (i, node) => {
-                 const subTreePath = path.into(vector(':nodes', i));
-                 return view(node, event, subTreePath);
-               }, vector()).intoArray(),
-             () => '…'))
+    h('div', model.get(':nodes').mapKV(
+      (i, node) => {
+        const subTreePath = path.into(vector(':nodes', i));
+        return view(node, event, subTreePath);
+      }, vector()).intoArray())
   ]);
 };

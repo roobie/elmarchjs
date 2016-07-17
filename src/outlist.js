@@ -19,6 +19,9 @@ const {
   toJs
 } = mori;
 const R = require('ramda');
+const {
+  is
+} = require('./viewutils');
 
 const { apiUrl } = require('./config');
 
@@ -83,6 +86,7 @@ export const update = (model, action) => {
       Action.Save(),
       model.assoc(':loading', true)
     ],
+
     Save: () => request('PUT', `${apiUrl}/data`, {
       headers: {
         Authentication: model.get(':token')
@@ -98,46 +102,62 @@ export const update = (model, action) => {
   }, action);
 };
 
+const loggedIn = model => !!model.get(':token');
+
 export const view = (model, event) => {
   return h('div.outlist', [
     h('header', [
       h('pre', JSON.stringify(mori.dissoc(model, ':tree').toJs(), null, 2)),
       h('div', model.get(':message')),
       h('h4', model.get(':title')),
-      h('input', {
-        props: {
-          type: 'text',
-          value: model.get(':email')
-        },
-        on: {
-          input: e => event(Action.SetEmail(e.target.value))
-        }
+
+      is(loggedIn(model), {
+        yes: () => h('div', [
+          h('button', {
+            props: {
+              type: 'button'
+            },
+            on: {
+              click: e => event(Action.InitSave())
+            }
+          }, 'save')
+        ]),
+        no: () => h('div', [
+          h('input', {
+            props: {
+              type: 'text',
+              value: model.get(':email')
+            },
+            on: {
+              input: e => event(Action.SetEmail(e.target.value))
+            }
+          }),
+          h('button', {
+            props: {
+              type: 'button'
+            },
+            on: {
+              click: e => event(Action.InitLogin(model.get(':email')))
+            }
+          }, 'log in'),
+        ])
       }),
-      h('button', {
-        props: {
-          type: 'button'
-        },
-        on: {
-          click: e => event(Action.InitLogin(model.get(':email')))
-        }
-      }, 'log in'),
-      h('button', {
-        props: {
-          type: 'button'
-        },
-        on: {
-          click: e => event(Action.InitSave())
-        }
-      }, 'save')
     ]),
-    h('div.col.left', [
+
+    h('div.col.left', {
+      class: {
+        hide: !loggedIn(model)
+      }
+    }, [
       TreeNodeComponent.view(
         model.get(':tree'),
         treeAction => event(Action.TreeAction(treeAction)))
     ]),
+
     h('div.col.right', [
       h('pre', JSON.stringify(model.get(':tree').toJs(), null, 2))
     ]),
+
     h('footer', [
     ])
   ]);
