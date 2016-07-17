@@ -10,6 +10,9 @@ const patch = snabbdom.init([
   require('snabbdom/modules/eventlisteners')
 ]);
 
+// TODO: time-travel, stream exposed to window, which
+// allows for inc and dec operations in the history.
+
 /// Runs an Elm architecture based application
 // in order to simplify hot code replacement, the
 // component parameter here is a reference to an object
