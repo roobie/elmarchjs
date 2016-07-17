@@ -5,6 +5,10 @@ html, body {
     .solarized-light();
 }
 
+html * {
+    box-sizing: border-box;
+}
+
 header {
     margin: 1rem;
 }
@@ -13,11 +17,16 @@ header {
     display: none !important;
 }
 
+@controlHeight: 1.5rem;
+
 .outlist {
+    input {
+        height: @controlHeight;
+    }
     button {
         .solarized-dark();
         border: none;
-        height: 1.5rem;
+        height: @controlHeight;
         line-height: 1.3rem;
         font-size: 1rem;
         margin: 0 2px;

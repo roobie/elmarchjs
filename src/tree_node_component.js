@@ -20,7 +20,8 @@ export const model = hashMap(
   ':name', 'LIST',
   ':expanded', true,
   ':hovering', false,
-  ':nodes', vector()
+  ':nodes', vector(),
+  ':field', null
 );
 
 export const init = (props) => !props ? model : model.assoc(...props || []);
@@ -29,7 +30,9 @@ export const Action = Type({
   ToggleExpanded: [isVector],
   SetHover: [isVector, Boolean],
   AddChild: [isVector, isMap, isMap],
-  RemoveThis: [isVector]
+  RemoveThis: [isVector],
+  UpdateName: [String],
+  AddField: [isVector],
 });
 
 export const update = (model, action) => {
@@ -49,7 +52,10 @@ export const update = (model, action) => {
       return confirm('sure you want to delete this?')
         ? model.dissocIn(path)
         : model;
-    }
+    },
+    UpdateName: (name) => model.assoc(':name', name),
+    AddField: (path) => model.assocIn(
+      path.conj(':field').intoArray(), hashMap(':value', 'TEST')),
   }, action);
 };
 
@@ -81,6 +87,42 @@ export const view = (model, event, path=vector()) => {
 
       h('button', {
         class: {
+          hide: model.get(':nodes').isEmpty(),
+          mono: true
+        },
+        props: {
+          type: 'button'
+        },
+        on: {
+          click: e => event(Action.ToggleExpanded(path))
+        }
+      }, model.get(':expanded')
+        ? '[-]'
+        : '[+]'),
+
+      h('input', {
+        props: {
+          type: 'text',
+          value: model.get(':name')
+        },
+        on: {
+          input: e => event(Action.UpdateName(e.target.value))
+        }
+      }),
+
+      h('button', {
+        class: {
+        },
+        props: {
+          type: 'button'
+        },
+        on: {
+          click: e => event(Action.AddField(path))
+        }
+      }, 'add field'),
+
+      h('button', {
+        class: {
         },
         props: {
           type: 'button'
@@ -96,7 +138,9 @@ export const view = (model, event, path=vector()) => {
         }
       }, 'add list'),
 
-      h('button', {
+      path.isEmpty() ?
+        h('span')
+      : h('button', {
         props: {
           type: 'button',
           innerHTML: '&times;'
@@ -105,21 +149,16 @@ export const view = (model, event, path=vector()) => {
           click: e => event(Action.RemoveThis(path))
         }
       }),
+    ]),
 
-      h('button', {
-        class: {
-          hide: model.get(':nodes').isEmpty(),
-          mono: true
-        },
-        props: {
-          type: 'button'
-        },
-        on: {
-          click: e => event(Action.ToggleExpanded(path))
-        }
-      }, model.get(':expanded')
-        ? '[-]'
-        : '[+]')
+    h('div', [
+      model.get(':field') ?
+        h('textarea', {
+          props: {
+            value: model.getIn([':field', ':value'])
+          }
+        })
+      : h('span')
     ]),
 
     h('div', is(model.get(':expanded'), {
