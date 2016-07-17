@@ -5,6 +5,10 @@ html, body {
     .solarized-light();
 }
 
+header {
+    margin: 1rem;
+}
+
 .outlist {
     button {
         .solarized-dark();
@@ -19,14 +23,20 @@ html, body {
     
     .list {
         margin-left: 1rem;
-        border-left: 1px solid silver;
-        border-top: 1px solid silver;
+        padding-top: 0.2rem;
+        border-left: 1px solid @base01;
+        border-top: 1px solid @base01;
         background-color: @base2;
         color: @base02;
     }
 
     .hover-active {
-        background-color: darken(@base2, 20%);
+        background-color: lighten(@orange, 40%);
+
+        .list {
+            //background-color: @base3;
+            background-color: fadeout(lighten(@violet, 20%), 50%);
+        }
     }
 
     .mono {

@@ -45,7 +45,7 @@ router.post('/login', (req, res) => {
   console.log(req.body);
   const user = users.filter(u => u.email === req.body.user)[0];
   if (user) {
-    require('crypto').randomBytes(128, function(err, buffer) {
+    require('crypto').randomBytes(64, function(err, buffer) {
       const token = buffer.toString('hex');
       session[token] = user;
       return res.status(200).send(token);

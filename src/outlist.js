@@ -40,7 +40,6 @@ export const Action = Type({
   Login: [String],
   InitSave: [],
   Save: [],
-  GetData: []
 });
 
 const subActionHandler = (component, model, key) =>
@@ -96,7 +95,6 @@ export const update = (model, action) => {
       );
     }),
 
-    GetData: () => request('GET', `${apiUrl}/data`).getBody()
   }, action);
 };
 
