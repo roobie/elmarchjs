@@ -31,7 +31,7 @@ export const model = hashMap(
   ':tree', TreeNodeComponent.model
 );
 
-export const init = (props) => model.assoc(...props || []);
+export const init = (props) => !props ? model : model.assoc(...props || []);
 
 export const Action = Type({
   TreeAction: [R.T],
@@ -57,7 +57,7 @@ export const update = (model, action) => {
     }).getBody()
       .then(res => model.assoc(
         ':token', res,
-        ':loading', false
+        ':message', 'logged in'
       ))
       .then(newmodel => {
         //return newmodel;
@@ -68,7 +68,10 @@ export const update = (model, action) => {
         }).getBody()
           .then(res => {
             const data = JSON.parse(res);
-            return newmodel.assoc(':tree', mori.toClj(data));
+            return newmodel.assoc(
+              ':tree', mori.toClj(data),
+              ':loading', false
+            );
           });
       }),
 
@@ -87,7 +90,10 @@ export const update = (model, action) => {
       },
       json: model.get(':tree').toJs()
     }).getBody().then(res => {
-      return model.assoc(':loading', false);
+      return model.assoc(
+        ':loading', false,
+        ':message', 'saved'
+      );
     }),
 
     GetData: () => request('GET', `${apiUrl}/data`).getBody()
@@ -98,6 +104,7 @@ export const view = (model, event) => {
   return h('div.outlist', [
     h('header', [
       h('pre', JSON.stringify(mori.dissoc(model, ':tree').toJs(), null, 2)),
+      h('div', model.get(':message')),
       h('h4', model.get(':title')),
       h('input', {
         props: {

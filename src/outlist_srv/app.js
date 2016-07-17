@@ -45,12 +45,14 @@ router.post('/login', (req, res) => {
   console.log(req.body);
   const user = users.filter(u => u.email === req.body.user)[0];
   if (user) {
-    const token = '12345';
-    session[token] = user;
-    return res.status(200).send(token);
+    require('crypto').randomBytes(128, function(err, buffer) {
+      const token = buffer.toString('hex');
+      session[token] = user;
+      return res.status(200).send(token);
+    });
+  } else {
+    return res.status(400).end();
   }
-
-  return res.status(400).end();
 });
 
 app.use(function (req, res, next) {
