@@ -2,21 +2,13 @@ require('./outlist.less');
 const request = require('then-request');
 const h = require('snabbdom/h');
 const Type = require('union-type');
-const mori = require('mori-fluent')(require('mori'), require('mori-fluent/extra'));
+const mori = require('mori-fluent')(require('mori'), require('mori-fluent/extra'), {
+  dissocIn: function (path) {
+  }
+});
 const {
   vector,
   hashMap,
-  map,
-  keys,
-  vals,
-  equals,
-  getIn,
-  get,
-  assoc,
-  updateIn,
-  nth,
-  toClj,
-  toJs
 } = mori;
 const R = require('ramda');
 const {
@@ -72,6 +64,7 @@ export const update = (model, action) => {
             const data = JSON.parse(res);
             return newmodel.assoc(
               ':tree', mori.toClj(data),
+              //':tree', TreeNodeComponent.init(),
               ':loading', false
             );
           });

@@ -7,17 +7,7 @@ const {
   hashMap,
   isVector,
   isMap,
-  map,
-  keys,
-  vals,
-  equals,
-  getIn,
-  get,
-  assoc,
-  updateIn,
-  nth,
-  toClj,
-  toJs
+  toClj
 } = mori;
 const R = require('ramda');
 
@@ -33,12 +23,13 @@ export const model = hashMap(
   ':nodes', vector()
 );
 
-export const init = (...props) => model.assoc(...props || []);
+export const init = (props) => !props ? model : model.assoc(...props || []);
 
 export const Action = Type({
   ToggleExpanded: [isVector],
   SetHover: [isVector, Boolean],
-  AddChild: [isVector, isMap, isMap]
+  AddChild: [isVector, isMap, isMap],
+  RemoveThis: [isVector]
 });
 
 export const update = (model, action) => {
@@ -53,6 +44,15 @@ export const update = (model, action) => {
         path,
         nodes => nodes.conj(childModel));
       return newModel;
+    },
+    RemoveThis: function remThis(path) {
+      const idx = path.peek();
+      const basePath = path.pop();
+
+      return model
+        .updateIn(path, () => null)
+        .updateIn(basePath, vec => toClj(vec.filter(i => i !== null).intoArray()));
+
     }
   }, action);
 };
@@ -126,10 +126,13 @@ export const view = (model, event, path=vector()) => {
         : '[+]')
     ]),
 
-    h('div', model.get(':nodes').mapKV(
-      (i, node) => {
-        const subTreePath = path.into(vector(':nodes', i));
-        return view(node, event, subTreePath);
-      }, vector()).intoArray())
+    h('div', is(model.get(':expanded'), {
+      yes: () => model.get(':nodes').mapKV(
+        (i, node) => {
+          const subTreePath = path.into(vector(':nodes', i));
+          return view(node, event, subTreePath);
+        }, vector()).intoArray(),
+      no: () => [h('span', '…')]
+    }))
   ]);
 };
