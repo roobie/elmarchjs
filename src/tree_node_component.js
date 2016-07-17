@@ -57,6 +57,9 @@ export const update = (model, action) => {
 
 export const view = (model, event, path=vector()) => {
   return h('div.list', {
+    class: {
+      'hover-active': model.get(':hovering')
+    },
     on: {
       mouseover: e => {
         event(Action.SetHover(path, true));
@@ -72,11 +75,14 @@ export const view = (model, event, path=vector()) => {
   }, [
     h('div', [
 
-      h('span', model.get(':name')),
+      h('span', {
+        props: {
+          title: model.get(':name')
+        }
+      }, '⋮'),
 
       h('button', {
         class: {
-          mono: true
         },
         props: {
           type: 'button'

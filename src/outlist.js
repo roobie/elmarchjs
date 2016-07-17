@@ -30,7 +30,6 @@ export const model = hashMap(
 export const init = (props) => model.assoc(...props || []);
 
 export const Action = Type({
-
   TreeAction: [R.T]
 });
 
@@ -39,17 +38,14 @@ const subActionHandler = (component, model, key) =>
 
 export const update = (model, action) => {
   return Action.case({
-    // TreeAction: (a) => model.assoc(
-    //   ':tree',
-    //   TreeNodeComponent.update(model.get(':tree'), a))
     TreeAction: subActionHandler(TreeNodeComponent, model, ':tree')
   }, action);
 };
 
 export const view = (model, event) => {
-  return h('div', [
+  return h('div.outlist', [
     h('header', [
-      h('h6', model.get(':title')),
+      h('h4', model.get(':title')),
     ]),
     h('div.col.left', [
       TreeNodeComponent.view(
@@ -60,7 +56,6 @@ export const view = (model, event) => {
       h('pre', JSON.stringify(model.get(':tree').toJs(), null, 2))
     ]),
     h('footer', [
-
     ])
   ]);
 };

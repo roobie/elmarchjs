@@ -1,26 +1,48 @@
 @import 'normalize.less';
+@import 'solarized.less';
 
-.list {
-    margin-left: 1rem;
-    border-left: 1px solid silver;
-    border-top: 1px solid silver;
+html, body {
+    .solarized-light();
 }
 
-.mono {
-    font-family: monospace;
-}
+.outlist {
+    button {
+        .solarized-dark();
+        border: none;
+        height: 1.3rem;
+        line-height: 1.3rem;
+        font-size: 1rem;
+        margin: 2px;
+    }
+    
+    .list {
+        margin-left: 1rem;
+        border-left: 1px solid silver;
+        border-top: 1px solid silver;
+        background-color: @base2;
+        color: @base02;
+    }
 
-// debugging
-.col {
-    float: left;
-}
+    .hover-active {
+        background-color: darken(@base2, 20%);
+    }
 
-.col.left,
-.col.right {
-    width: 50%;
-}
+    .mono {
+        font-family: monospace;
+    }
 
-pre {
-    margin: 0;
-    font-size: 0.7rem;
+    // debugging
+    .col {
+        float: left;
+    }
+
+    .col.left,
+    .col.right {
+        width: 50%;
+    }
+
+    pre {
+        margin: 0;
+        font-size: 0.7rem;
+    }
 }
