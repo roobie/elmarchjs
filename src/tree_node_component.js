@@ -46,13 +46,9 @@ export const update = (model, action) => {
       return newModel;
     },
     RemoveThis: function remThis(path) {
-      const idx = path.peek();
-      const basePath = path.pop();
-
-      return model
-        .updateIn(path, () => null)
-        .updateIn(basePath, vec => toClj(vec.filter(i => i !== null).intoArray()));
-
+      return confirm('sure you want to delete this?')
+        ? model.dissocIn(path)
+        : model;
     }
   }, action);
 };

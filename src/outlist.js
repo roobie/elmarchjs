@@ -4,6 +4,11 @@ const h = require('snabbdom/h');
 const Type = require('union-type');
 const mori = require('mori-fluent')(require('mori'), require('mori-fluent/extra'), {
   dissocIn: function (path) {
+    const vec = vector();
+    const basePath = path.pop();
+    return this
+      .assocIn(path, null)
+      .updateIn(basePath, v => vec.into(v.filter(i => i !== null)));
   }
 });
 const {
